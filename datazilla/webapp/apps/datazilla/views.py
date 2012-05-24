@@ -17,6 +17,7 @@ from datazilla.model.DatazillaModel import DatazillaModel
 APP_JS = 'application/json'
 
 def graphs(request, project=""):
+    """Render a graph page for the given project."""
 
     ####
     #Load any signals provided in the page
@@ -26,12 +27,14 @@ def graphs(request, project=""):
 
     for s in SIGNALS:
         if s in request.POST:
-            signals.append( { 'value':urllib.unquote( request.POST[s] ),
-                              'name':s } )
+            signals.append({
+                "value": urllib.unquote(request.POST[s]),
+                "name": s,
+                })
     ###
     #Get reference data
     ###
-    cacheKey = str(project) + '_reference_data'
+    cacheKey = "{0}_reference_data".format(str(project))
     jsonData = '{}'
     mc = memcache.Client([settings.DATAZILLA_MEMCACHED], debug=0)
     compressedJsonData = mc.get(cacheKey)
@@ -75,10 +78,15 @@ def graphs(request, project=""):
     return render_to_response('graphs.views.html', data)
 
 def getHelp(request):
+    """Return a help screen."""
+
     data = {}
     return render_to_response('help/dataview.generic.help.html', data)
 
+
 def setTestData(request):
+    # @@@ TODO This looks like an API
+    # this is not the submission of a form, so we should use tastypie for this.
 
     jsonData = '{"error":"No POST data found"}'
 
@@ -97,17 +105,19 @@ def setTestData(request):
     return HttpResponse(jsonData, mimetype=APP_JS)
 
 def dataview(request, project="", method=""):
+    # @@@ TODO This looks like an API
+    # this is getting raw data, so we should use tastypie for this.
 
     procPath = "graphs.views."
     ##Full proc name including base path in json file##
-    fullProcPath = "%s%s" % (procPath, method)
+    fullProcPath = "{0}{1}".format(procPath, method)
 
     if settings.DEBUG:
         ###
         #Write IP address and datetime to log
         ###
-        print "Client IP:%s" % (request.META['REMOTE_ADDR'])
-        print "Request Datetime:%s" % (str(datetime.datetime.now()))
+        print "Client IP:{0}".format(request.META['REMOTE_ADDR'])
+        print "Request Datetime:{0}".format(str(datetime.datetime.now()))
 
     json = ""
     if method in DATAVIEW_ADAPTERS:
@@ -127,14 +137,16 @@ def dataview(request, project="", method=""):
                         fields.append( dm.dhub.escapeString( request.GET[f] ) )
 
                 if len(fields) == len(DATAVIEW_ADAPTERS[method]['fields']):
-                    json = dm.dhub.execute(proc=fullProcPath,
-                                           debug_show=settings.DEBUG,
-                                           placeholders=fields,
-                                           return_type='table_json')
+                    json = dm.dhub.execute(
+                        proc=fullProcPath,
+                        debug_show=settings.DEBUG,
+                        placeholders=fields,
+                        return_type='table_json')
 
                 else:
-                    json = '{ "error":"%s fields required, %s provided" }' % (str(len(DATAVIEW_ADAPTERS[method]['fields'])),
-                                                                              str(len(fields)))
+                    json = ('{ "error":"{0} fields required, {1} provided" }'.format(
+                        str(len(DATAVIEW_ADAPTERS[method]['fields'])),
+                        str(len(fields))))
 
             else:
 
@@ -148,6 +160,7 @@ def dataview(request, project="", method=""):
         json = '{ "error":"Data view name %s not recognized" }' % method
 
     return HttpResponse(json, mimetype=APP_JS)
+
 
 def _getTestReferenceData(project, method, request, dm):
 
@@ -224,6 +237,7 @@ def _getTestRunSummary(project, method, request, dm):
 
     return jsonData
 
+
 def _getTestValues(project, method, request, dm):
 
     data = {};
@@ -235,6 +249,7 @@ def _getTestValues(project, method, request, dm):
 
     return jsonData
 
+
 def _getPageValues(project, method, request, dm):
 
     data = {};
@@ -245,6 +260,7 @@ def _getPageValues(project, method, request, dm):
     jsonData = json.dumps( data )
 
     return jsonData
+
 
 def _getTestValueSummary(project, method, request, dm):
 
