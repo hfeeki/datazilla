@@ -5,6 +5,10 @@ urlpatterns = patterns(
     '',
     (r'^$', views.graphs),
     (r'^help$', views.getHelp),
-    (r'^load_test$', views.setTestData),
-    (r'^api/(?P<method>\w+)$', views.dataview),
+
+    # api --------------------------------------------------------------------
+    url(r"^api/(?P<method>\w+)/$", include("datazilla.webapp.apps.datazilla.api.urls")),
+
+#    (r'^load_test$', views.setTestData),
+#    (r'^api/(?P<method>\w+)$', views.dataview),
 )
