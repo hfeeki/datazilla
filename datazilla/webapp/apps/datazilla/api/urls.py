@@ -14,6 +14,7 @@ project_resource = ProjectResource()
 urlpatterns = patterns(
     "datazilla.api",
     url(r"", include(project_resource.urls)),
+    url(r"(?P<method>\w+)/", include(project_resource.urls)),
     )
 #    (r'^load_test$', views.setTestData),
 #    (r'^api/(?P<method>\w+)$', views.dataview),

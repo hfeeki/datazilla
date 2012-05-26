@@ -103,62 +103,6 @@ def setTestData(request):
 
     return HttpResponse(jsonData, mimetype=APP_JS)
 
-def dataview(request, project="", method=""):
-    # @@@ TODO This looks like an API
-    # this is getting raw data, so we should use tastypie for this.
-
-    procPath = "graphs.views."
-    ##Full proc name including base path in json file##
-    fullProcPath = "{0}{1}".format(procPath, method)
-
-    if settings.DEBUG:
-        ###
-        #Write IP address and datetime to log
-        ###
-        print "Client IP:{0}".format(request.META['REMOTE_ADDR'])
-        print "Request Datetime:{0}".format(str(datetime.datetime.now()))
-
-    json = ""
-    if method in DATAVIEW_ADAPTERS:
-        dm = DatazillaModel(project, 'graphs.json')
-        if 'adapter' in DATAVIEW_ADAPTERS[method]:
-            json = DATAVIEW_ADAPTERS[method]['adapter'](project,
-                                                        method,
-                                                        request,
-                                                        dm)
-        else:
-            if 'fields' in DATAVIEW_ADAPTERS[method]:
-                fields = []
-                for f in DATAVIEW_ADAPTERS[method]['fields']:
-                    if f in request.POST:
-                        fields.append( dm.dhub.escapeString( request.POST[f] ) )
-                    elif f in request.GET:
-                        fields.append( dm.dhub.escapeString( request.GET[f] ) )
-
-                if len(fields) == len(DATAVIEW_ADAPTERS[method]['fields']):
-                    json = dm.dhub.execute(
-                        proc=fullProcPath,
-                        debug_show=settings.DEBUG,
-                        placeholders=fields,
-                        return_type='table_json')
-
-                else:
-                    json = ('{ "error":"{0} fields required, {1} provided" }'.format(
-                        str(len(DATAVIEW_ADAPTERS[method]['fields'])),
-                        str(len(fields))))
-
-            else:
-
-                json = dm.dhub.execute(proc=fullProcPath,
-                                       debug_show=settings.DEBUG,
-                                       return_type='table_json')
-
-        dm.disconnect();
-
-    else:
-        json = '{ "error":"Data view name %s not recognized" }' % method
-
-    return HttpResponse(json, mimetype=APP_JS)
 
 
 def _getTestReferenceData(project, method, request, dm):
