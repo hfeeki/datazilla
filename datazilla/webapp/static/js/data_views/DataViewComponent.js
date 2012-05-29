@@ -1,7 +1,7 @@
-/******* 
+/*******
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/. 
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
  * *****/
 var DataViewComponent = new Class({
 
@@ -10,7 +10,7 @@ var DataViewComponent = new Class({
      *
      *     This component encapsulates all of the functionality
      * of a single DataView.  The Data prefix on attribute or functions
-     * is to help distinguish between the pane constructed in the 
+     * is to help distinguish between the pane constructed in the
      * user interface that constitutes a single functional component
      * and the View of MVC which is also used by the component.
      *     The component acts as both a public interface to component
@@ -60,7 +60,7 @@ var DataViewComponent = new Class({
 
         //The parent view index, it will be defined when this window
         //was spawned from another.
-        if(( (window.opener != undefined) && (window.opener.document != undefined) ) && 
+        if(( (window.opener != undefined) && (window.opener.document != undefined) ) &&
             (this.dviewIndex === 0)){
             //get the parent dview index embedded in the page
             this.dviewParentIndex = this.view.getParentDataViewIndex();
@@ -102,17 +102,17 @@ var DataViewComponent = new Class({
         //for cross window communication
         this.notifyDataViewCollection();
 
-        //Get a new HTML clone for the 
+        //Get a new HTML clone for the
         //view and initialize it.
         this.getDataViewClone();
 
         //Display parent/child relationship
-        this.view.displayParentChild(this.dviewParentIndex, 
-                                              this.dviewIndex, 
+        this.view.displayParentChild(this.dviewParentIndex,
+                                              this.dviewIndex,
                                               this.parentWindowName);
 
         var defaultLoad = this.model.getDataViewAttribute('default_load')
-        if( (defaultLoad === 1) || 
+        if( (defaultLoad === 1) ||
              ((this.dviewIndex === 0) && (this.signalData.signal != undefined)) ){
             //Select view and load the data
             this.view.displaySignalData('receive', this.signalData, this.dviewIndex);
@@ -167,7 +167,7 @@ var DataViewComponent = new Class({
         if( (window.opener != undefined) && (window.opener.document != undefined) ){
             if(!_.isEmpty(data)){
                 //Make sure the window/view sender are the appropriate parents
-                if((data.window_sender === window.opener.document.title) && 
+                if((data.window_sender === window.opener.document.title) &&
                     (this.dviewParentIndex === data.parent_dview_index)){
 
                     //Let listener know this is a window message
@@ -329,8 +329,8 @@ var DataViewComponent = new Class({
      * CUSTOM EVENT HANDLERS
      *
      * Custom events are defined in the constructor and
-     * can be triggered from any other component.  All 
-     * custom events are triggered on the '#dv_view_container' 
+     * can be triggered from any other component.  All
+     * custom events are triggered on the '#dv_view_container'
      * div.  This gives subscribers a single place to register.
      ***************/
     processControlPanel: function(data){
@@ -338,10 +338,10 @@ var DataViewComponent = new Class({
         var dviewIndex = parseInt(data.dview_index);
 
         //Since this is an event listener on the main view container
-        //we need to confirm that the click event matches this DataView's 
+        //we need to confirm that the click event matches this DataView's
         //index.
         if((dviewIndex === this.dviewIndex) || (data.signal != undefined)){
-            var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel, 
+            var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel,
                                                                                  this.dviewIndex);
             /*********************
              * TODO:
@@ -354,7 +354,7 @@ var DataViewComponent = new Class({
              * data view-> dataset and signal->signal fields->signal field data
              *            1-> many                 1->many          1->many
              *
-             * This is very different than the bughunter data and is not 
+             * This is very different than the bughunter data and is not
              * appropriately handled in the object model.
              * ********************/
             //Get data from the visualization
@@ -364,16 +364,16 @@ var DataViewComponent = new Class({
 
             //Combine control panel selections with the visualization data
             var params = "";
-            params = a.processControlPanel(controlPanelDropdownSel, 
-                                                     data, 
-                                                     this.dviewIndex, 
+            params = a.processControlPanel(controlPanelDropdownSel,
+                                                     data,
+                                                     this.dviewIndex,
                                                      visData);
             this.updateSignalDateRange();
 
             this.view.showTableSpinner(this.dviewIndex);
 
             this.model.getDataViewData(this.model.getDataViewAttribute('name'),
-                                             this, 
+                                             this,
                                              this.initializeDataView,
                                              params,
                                              this.fnError);
@@ -393,7 +393,7 @@ var DataViewComponent = new Class({
             //message was sent from another window and has already been validated for receiving
             processSignal = true;
 
-        }else if( (data.parent_dview_index != this.dviewIndex) && 
+        }else if( (data.parent_dview_index != this.dviewIndex) &&
                      (this.dviewParentIndex === data.parent_dview_index) ){
 
             //signal was sent from inside page, make sure it was not this view that sent it
@@ -403,9 +403,9 @@ var DataViewComponent = new Class({
         }
 
         if(this.model === undefined){
-            //NOTE: this.model should never be undefined.  This is a hack to 
+            //NOTE: this.model should never be undefined.  This is a hack to
             //        handle when a dview has been deleted by the user.  When
-            //        a view is deleted the destroy method should remove all event 
+            //        a view is deleted the destroy method should remove all event
             //        listeners.  However, the destroy method fails to remove signal
             //        listeners. I think this is an artifact of using _.bind but need
             //        to look into this more.
@@ -432,7 +432,7 @@ var DataViewComponent = new Class({
 
             this.signalData = data;
 
-            var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel, 
+            var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel,
                                                                                     this.dviewIndex);
 
             //Display the signal data
@@ -440,11 +440,11 @@ var DataViewComponent = new Class({
             var adapterName = this.model.getDataViewAttribute('data_adapter');
             var a = this.dataAdapters.getAdapter(adapterName);
             //Pre-fill any fields
-            a.setControlPanelFields(controlPanelDropdownSel, 
-                                            this.signalData, 
+            a.setControlPanelFields(controlPanelDropdownSel,
+                                            this.signalData,
                                             this.dviewIndex);
 
-            var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel, 
+            var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel,
                                                                                     this.dviewIndex);
             this.processControlPanel(this.signalData);
         }
@@ -453,7 +453,7 @@ var DataViewComponent = new Class({
     /********************
      *DATAVIEW LOCAL EVENT REGISTRATION
      *
-     * Local events in this case are events that 
+     * Local events in this case are events that
      * have a single listener that is the DataView itself.
      ********************/
     registerDataViewEvents: function(){
@@ -465,7 +465,7 @@ var DataViewComponent = new Class({
     },
     setMenuEv: function(){
 
-        $.ajax(this.view.navMenuHtmlUrl, { 
+        $.ajax(this.view.navMenuHtmlUrl, {
 
             accepts:'text/html',
             dataType:'html',
@@ -474,11 +474,11 @@ var DataViewComponent = new Class({
 
                 var navMenuSel = this.view.getIdSelector(this.view.navMenuSel, this.dviewIndex);
 
-                $(navMenuSel).menu({ 
+                $(navMenuSel).menu({
                     content: data,
                     flyOut: true,
                     showSpeed: 150,
-                    callback:{ method:this.selectDataView, 
+                    callback:{ method:this.selectDataView,
                                   context:this }
                 });
             }, this) //end bind
@@ -489,7 +489,7 @@ var DataViewComponent = new Class({
         var controlPanel = this.model.getDataViewAttribute('control_panel');
         var controlPanelUrl = this.view.controlPanelHtmlUrl + controlPanel;
 
-        $.ajax(controlPanelUrl, { 
+        $.ajax(controlPanelUrl, {
             accepts:'text/html',
             dataType:'html',
             success: _.bind( this._setControlPanelCb, this )
@@ -552,17 +552,17 @@ var DataViewComponent = new Class({
                     var p = $(event.target).parent();
 
                     var signalHelpSel = this.view.getIdSelector(this.view.signalHelpBtSel, this.dviewIndex);
-                    if($(event.target).attr('id')){ 
+                    if($(event.target).attr('id')){
                         buttonType = 'signal_help';
                     }else{
                         buttonType = $(p).attr('href').replace('#', '');
                     }
-                }else { 
+                }else {
                     buttonType = $(event.target).attr('href').replace('#', '');
                 }
 
                 if( _.isFunction(this.buttonHandlers[ buttonType ]) ){
-                    _.bind(this.buttonHandlers[ buttonType ], this)(); 
+                    _.bind(this.buttonHandlers[ buttonType ], this)();
                 }else{
                     console.log("Component Error: No button handler for " + buttonType);
                 }
@@ -639,7 +639,7 @@ var DataViewComponent = new Class({
 
         }else{
             this.view.showNoDataMessage(this.dviewIndex);
-        } 
+        }
     },
     getSignalDataFromPage: function(){
 
@@ -677,7 +677,7 @@ var DataViewComponent = new Class({
     },
     updateSignalDateRange: function(){
 
-        var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel, 
+        var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel,
                                                                                 this.dviewIndex);
         var adapterName = this.model.getDataViewAttribute('data_adapter');
         var a = this.dataAdapters.getAdapter(adapterName);
@@ -725,7 +725,7 @@ var DataViewComponent = new Class({
                 var targetData = DV_PAGE.escapeForUrl($(event.target).text());
 
 
-                var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel, 
+                var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel,
                                                                                         this.dviewIndex);
                 var dateRange = a.getDateRangeParams(controlPanelDropdownSel, this.signalData);
 
@@ -745,7 +745,7 @@ var DataViewComponent = new Class({
         this.view.closeMenu();
         //disable button if we are the main view
         if(this.dviewIndex != 0){
-            $(this.view.allViewsContainerSel).trigger( this.closeEvent, { dview_index:this.dviewIndex } ); 
+            $(this.view.allViewsContainerSel).trigger( this.closeEvent, { dview_index:this.dviewIndex } );
         }
     },
     moveToNewWindow: function(){
@@ -754,7 +754,7 @@ var DataViewComponent = new Class({
         if(this.dviewIndex != 0){
 
             //Get the dateRange
-            var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel, 
+            var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel,
                                                                                     this.dviewIndex);
             var adapterName = this.model.getDataViewAttribute('data_adapter');
             var a = this.dataAdapters.getAdapter(adapterName);
@@ -770,8 +770,8 @@ var DataViewComponent = new Class({
                              params:params };
 
             $(this.view.allViewsContainerSel).trigger(this.addDataViewEvent, data);
-            $(this.view.allViewsContainerSel).trigger( this.closeEvent, { dview_index:this.dviewIndex } ); 
-            
+            $(this.view.allViewsContainerSel).trigger( this.closeEvent, { dview_index:this.dviewIndex } );
+
         }
     },
     openWindow: function(){
@@ -786,7 +786,7 @@ var DataViewComponent = new Class({
 
         this.view.closeMenu();
 
-        data = { dview_index:this.dviewIndex }; 
+        data = { dview_index:this.dviewIndex };
 
         this.processControlPanel(data);
 
@@ -826,7 +826,7 @@ var DataViewComponent = new Class({
 
         var charts = this.model.getDataViewAttribute('charts');
 
-        //item is defined and menuToggle is set to true when the user 
+        //item is defined and menuToggle is set to true when the user
         //toggles the Visualization from the menu
         var menuToggle = false;
         if(item){
@@ -843,7 +843,7 @@ var DataViewComponent = new Class({
 
         this.view.displayDataViewName(this.dviewIndex, dviewReadName);
 
-        var datatableWrapperSel = this.view.getIdSelector(this.view.tableSel, this.dviewIndex) + 
+        var datatableWrapperSel = this.view.getIdSelector(this.view.tableSel, this.dviewIndex) +
                                           this.view.wrapperSuffix;
 
         var visContainerSel = this.view.getIdSelector(this.view.visContainerSel, this.dviewIndex);
@@ -851,10 +851,10 @@ var DataViewComponent = new Class({
         var singleViewSel = this.view.getIdSelector(this.view.singleViewContainerSel, this.dviewIndex);
 
         if(this.visName != 'table'){
-            
+
             var detailSelectors = this.view.getVisDetailSelectors(this.dviewIndex);
 
-            var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel, 
+            var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel,
                                                                                     this.dviewIndex);
             var adapterName = this.model.getDataViewAttribute('data_adapter');
             var a = this.dataAdapters.getAdapter(adapterName);
@@ -882,12 +882,12 @@ var DataViewComponent = new Class({
 
         this.view.closeMenu();
 
-        this.view.displayVisualization(datatableWrapperSel, 
-                                                 visContainerSel, 
-                                                 singleViewSel, 
+        this.view.displayVisualization(datatableWrapperSel,
+                                                 visContainerSel,
+                                                 singleViewSel,
                                                  this.visName);
     },
-     
+
     /*************
      *MENU CALLBACK METHODS
      *************/
@@ -896,7 +896,7 @@ var DataViewComponent = new Class({
         messageText += ' HTTP status:' + data.status + ', ' + textStatus +
         ', ' + data.statusText;
 
-        this.view.showNoDataMessage(this.dviewIndex, 'error', messageText); 
+        this.view.showNoDataMessage(this.dviewIndex, 'error', messageText);
     },
      _setControlPanelCb: function(data){
 
@@ -909,7 +909,7 @@ var DataViewComponent = new Class({
         //Set up ids
         var htmlEl = this.view.initializeControlPanel(data, this.dviewIndex);
 
-        $(controlPanelSel).menu({ 
+        $(controlPanelSel).menu({
             content: htmlEl.html(),
             showSpeed: 150,
             width: this.view.controlPanelWidth,
@@ -919,7 +919,7 @@ var DataViewComponent = new Class({
             onClose: _.bind( this._controlPanelOnClose, this),
 
             //This clickHandler prevents the form from closing when it's
-            //clicked for data input.  
+            //clicked for data input.
             clickHandler:_.bind( this._controlPanelClickHandler, this)
         });
     },
@@ -930,7 +930,7 @@ var DataViewComponent = new Class({
 
         //Populate the control panel fields with
         //any signal data
-        var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel, 
+        var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel,
                                                                                 this.dviewIndex);
 
         var adapterName = this.model.getDataViewAttribute('data_adapter');
@@ -945,9 +945,9 @@ var DataViewComponent = new Class({
         $(document).keydown( _.bind( this._processControlPanelKeyPress, this ) );
     },
     _controlPanelOnClose: function(event){
-        //Update the signal data when the menu is closed to make 
+        //Update the signal data when the menu is closed to make
         //sure we get any modification to the date range
-        var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel, 
+        var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel,
                                                                                 this.dviewIndex);
         var adapterName = this.model.getDataViewAttribute('data_adapter');
         var a = this.dataAdapters.getAdapter(adapterName);
@@ -960,7 +960,7 @@ var DataViewComponent = new Class({
         }
 
         //This is really dangerous, it will clear all keydown events
-        //assigned at the document level... which really should not be 
+        //assigned at the document level... which really should not be
         //any.  When passing a function to unbind it fails probably because
         //_.bind() is used for context management... Ughhhh
         $(document).unbind('keydown');
@@ -968,13 +968,13 @@ var DataViewComponent = new Class({
     },
     _controlPanelClickHandler: function(event){
 
-        var controlPanelBtId = this.view.getId(this.view.controlPanelBtSel, 
+        var controlPanelBtId = this.view.getId(this.view.controlPanelBtSel,
                                                             this.dviewIndex);
 
-        var controlPanelClearBtId = this.view.getId(this.view.controlPanelClearBtSel, 
+        var controlPanelClearBtId = this.view.getId(this.view.controlPanelClearBtSel,
                                                                   this.dviewIndex);
 
-        var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel, 
+        var controlPanelDropdownSel = this.view.getIdSelector(this.view.controlPanelDropdownSel,
                                                                                 this.dviewIndex);
 
         var elId = $(event.target).attr('id');
@@ -988,8 +988,8 @@ var DataViewComponent = new Class({
             //close menu
             this.view.closeMenu();
             //fire event
-            $(this.view.allViewsContainerSel).trigger( this.processControlPanelEvent, 
-                                                                  { dview_index:this.dviewIndex }); 
+            $(this.view.allViewsContainerSel).trigger( this.processControlPanelEvent,
+                                                                  { dview_index:this.dviewIndex });
         }else if(elId === controlPanelClearBtId){
             a.clearPanel(controlPanelDropdownSel);
         }
@@ -1001,8 +1001,8 @@ var DataViewComponent = new Class({
             //close menu
             this.view.closeMenu();
             //fire event
-            $(this.view.allViewsContainerSel).trigger( this.processControlPanelEvent, 
-                                                                  { dview_index:this.dviewIndex }); 
+            $(this.view.allViewsContainerSel).trigger( this.processControlPanelEvent,
+                                                                  { dview_index:this.dviewIndex });
         }
     },
 
@@ -1157,7 +1157,7 @@ var DataViewView = new Class({
         var cloneIdElements = $(containerEl).find(this.cloneIdSelector);
 
         for(var i=0; i<cloneIdElements.length; i++){
-            var id = $(cloneIdElements[i]).attr('id'); 
+            var id = $(cloneIdElements[i]).attr('id');
             //Append the index to the id to make id unique
             $(cloneIdElements[i]).attr('id', this.getId(id, dviewIndex));
         }
@@ -1175,7 +1175,7 @@ var DataViewView = new Class({
     getNewTableClone: function(dviewIndex, tableSel){
         //hide the table
         $(tableSel).fadeOut();
-        //remove from DOM 
+        //remove from DOM
         $(tableSel).remove();
         //get a new clone
         var tableEl = $(this.tableSel).clone();
@@ -1197,7 +1197,7 @@ var DataViewView = new Class({
         var liCloneEl = $(this.visLiCloneSel).get(0);
 
         for(var i=0; i<menuChildren.length; i++){
-            var liEl = menuChildren[i]; 
+            var liEl = menuChildren[i];
             if( !$(liEl).attr('id') ){
                 //Pre-existing li from another view type, delete it
                 $(liEl).remove();
@@ -1233,9 +1233,9 @@ var DataViewView = new Class({
          *
          * fg.menu maintains a global array with menu
          * objects containing each menu that it has positioned.
-         * In order to completely remove a positioned menu the 
+         * In order to completely remove a positioned menu the
          * following steps need to be carried out:
-         *     
+         *
          *     1.) Unbind all events from the control panel anchor
          *     2.) Remove the menu object from allUIMenus
          *     3.) Remove the menu and its parent positioning div
@@ -1243,21 +1243,21 @@ var DataViewView = new Class({
          *     4.) If the user has not opened the control panel
          *          and switches views the previous dropdown menu
          *          will not have the positioning div but will still
-         *          need to be removed. Remove it from the DOM using 
+         *          need to be removed. Remove it from the DOM using
          *          its element id.
          *
-         * NOTE: Clearly we are using fg.menu in a way that it 
+         * NOTE: Clearly we are using fg.menu in a way that it
          *         was not intended to be used.  A better approach
-         *         would be a clean destructor implementation for menu 
-         *         objects that live entirely in fg.menu but this will 
+         *         would be a clean destructor implementation for menu
+         *         objects that live entirely in fg.menu but this will
          *         require some significant changes to fg.menu.
          ********************/
-        var controlPanelSel = this.getIdSelector(this.controlPanelSel, 
+        var controlPanelSel = this.getIdSelector(this.controlPanelSel,
                                                               dviewIndex);
         $(controlPanelSel).unbind();
 
         //Remove menu from global array of menus
-        var controlPanelDropdownId = this.getId(this.controlPanelDropdownSel, 
+        var controlPanelDropdownId = this.getId(this.controlPanelDropdownSel,
                                                              dviewIndex);
         for(var i=0; i<allUIMenus.length; i++){
             if(allUIMenus[i].menuExists){
@@ -1277,7 +1277,7 @@ var DataViewView = new Class({
          * fg.menu wraps a div with the class positionHelper around
          * the menu to help with absolute positioning.  If we just remove
          * the dropdown menu without removing the positionHelper all
-         * hell breaks loose because the positionHelper divs accumulate.  
+         * hell breaks loose because the positionHelper divs accumulate.
          * This bit of hackery removes the container around the dropdown.
          * Ugh... I feel dirty.
          **********************/
@@ -1296,7 +1296,7 @@ var DataViewView = new Class({
         var viewIndexDisplaySel = this.getIdSelector(this.viewIndexDisplaySel, dviewIndex);
 
         var parentText = parentWindowName;
-        var viewText = parseInt(dviewIndex) + 1; 
+        var viewText = parseInt(dviewIndex) + 1;
 
         if(parentIndex >= 0){
             parentText += ", View " + (parseInt(parentIndex) + 1);
@@ -1331,7 +1331,7 @@ var DataViewView = new Class({
     },
     removeDataView: function(dviewIndex){
         var wrapperSel = this.getIdSelector(this.viewWrapperSel, dviewIndex);
-        $(wrapperSel).remove(); 
+        $(wrapperSel).remove();
     },
     changeViewHeight: function(dviewIndex, direction){
 
@@ -1379,7 +1379,7 @@ var DataViewView = new Class({
     },
     getTableScrollContainer: function(dviewIndex){
         var tableSel = this.getIdSelector(this.tableSel, dviewIndex);
-        return $(tableSel).parent(); 
+        return $(tableSel).parent();
     },
     getHelpModal: function(src){
 
@@ -1410,7 +1410,7 @@ var DataViewView = new Class({
 
         }else {
 
-            //This is required so the visualization panel does not get pushed 
+            //This is required so the visualization panel does not get pushed
             //down by the container
             $(singleViewSel).css('height', this.dvMinHeight);
 
@@ -1448,7 +1448,7 @@ var DataViewView = new Class({
         //Show data range sent if we have one
         if(signalData.date_range){
             var dateRange = signalData.date_range.start_date + ' to ' + signalData.date_range.end_date;
-            $(signalDateRangeDisplaySel).text(dateRange); 
+            $(signalDateRangeDisplaySel).text(dateRange);
         }
 
         //Show signal type and associated data
@@ -1487,7 +1487,7 @@ var DataViewView = new Class({
         //Hide the spinner
         var spinnerSel = this.getIdSelector(this.tableSpinnerSel, dviewIndex);
         $(spinnerSel).css('display', 'none');
-        
+
         //Show the single dview container
         var singleViewSel = this.getIdSelector(this.singleViewContainerSel, dviewIndex);
         $(singleViewSel).removeClass('hidden');
@@ -1498,7 +1498,7 @@ var DataViewView = new Class({
         $(topBarSel).removeClass('hidden');
 
         //Show message
-        var noDataSel = this.getIdSelector(this.tableNoDataSel, 
+        var noDataSel = this.getIdSelector(this.tableNoDataSel,
                                                       dviewIndex);
 
         var message = this.nodataMessage;
@@ -1545,7 +1545,7 @@ var DataViewView = new Class({
         this.hideTableSpinner(dviewIndex);
 
         //Hide the no data message
-        var noDataSel = this.getIdSelector(this.tableNoDataSel, 
+        var noDataSel = this.getIdSelector(this.tableNoDataSel,
                                                       dviewIndex);
         $(noDataSel).css('display', 'none');
 
@@ -1574,7 +1574,7 @@ var DataViewView = new Class({
     },
     showTableSpinner: function(dviewIndex){
 
-        var noDataSel = this.getIdSelector(this.tableNoDataSel, 
+        var noDataSel = this.getIdSelector(this.tableNoDataSel,
                                                       dviewIndex);
         $(noDataSel).css('display', 'none');
 
@@ -1611,7 +1611,7 @@ var DataViewView = new Class({
 var DataViewModel = new Class({
 
     /****************************
-     * DataViewModel manages data structures and server 
+     * DataViewModel manages data structures and server
      * side data retrieval.
      ****************************/
     Extends:View,
@@ -1633,11 +1633,11 @@ var DataViewModel = new Class({
         this.dviewHash = {};
         this.setDataViewHash(this.options.dviewName);
         this.apiLocation = "/" + DV_PAGE.project + "/api/";
-        this.dateRangeLocation = "/" + DV_PAGE.project + "/api/get_date_range";
+        this.dateRangeLocation = "/" + DV_PAGE.project + "/api/get_date_range/project";
 
         //This is set from any incoming view data
         //to whatever the final range was.  If the
-        //range provided by the UI is invalid the server 
+        //range provided by the UI is invalid the server
         //will reset it.
         this.start_date = "";
         this.end_date = "";
@@ -1650,7 +1650,7 @@ var DataViewModel = new Class({
     },
     getDataViewData: function(dviewName, context, fnSuccess, params, fnError){
 
-        var url = this.apiLocation + dviewName;
+        var url = this.apiLocation + dviewName + "/project/";
 
         //Check for default data
         var serviceUrl = this.getDataViewAttribute('service_url');
@@ -1715,7 +1715,7 @@ var DataViewModel = new Class({
         }
 
         //NOTE: datatableObject cannot be an attribute of the
-        //        model instance because it is unique to different 
+        //        model instance because it is unique to different
         //        views.
         var datatableObject = { bJQueryUI: true,
                                         sPaginationType: "full_numbers",
@@ -1725,7 +1725,7 @@ var DataViewModel = new Class({
                                         sScrollX:"100%",
 
                                         //Hide these columns in initial display
-                                        aoColumnDefs:[ 
+                                        aoColumnDefs:[
                                             { bVisible: false, aTargets:aTargets }
                                         ],
 
@@ -1754,7 +1754,7 @@ var DataViewModel = new Class({
 
         var signals = this.getDataViewAttribute('signals');
         //Get a data adapter to process the data.  This allows
-        //individual dviews to process the data according to 
+        //individual dviews to process the data according to
         //their requirements
         var adapterName = this.getDataViewAttribute('data_adapter');
         var a = this.dataAdapters.getAdapter(adapterName);

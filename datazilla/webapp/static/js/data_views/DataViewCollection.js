@@ -1,7 +1,7 @@
-/******* 
+/*******
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this file,
- * You can obtain one at http://mozilla.org/MPL/2.0/. 
+ * You can obtain one at http://mozilla.org/MPL/2.0/.
  * *****/
 var DataViewCollection = new Class({
 
@@ -23,7 +23,7 @@ var DataViewCollection = new Class({
         this.view = new DataViewCollectionView('#DataViewCollectionView', {});
 
         this.dviewIndex = undefined;
- 
+
         //Get the view marked as default in json structure
         this.defaultDataViewName = this.model.getDefaultDataView();
 
@@ -32,7 +32,7 @@ var DataViewCollection = new Class({
                                      SIGNAL_DATAVIEW:this.sendSignalToChildWindows,
                                      OPEN_COLLECTION_DATAVIEW:this.openDataViewCollection };
 
-        DV_PAGE.registerSubscribers(this.subscriptionTargets, 
+        DV_PAGE.registerSubscribers(this.subscriptionTargets,
                                             this.view.allViewsContainerSel,
                                             this);
 
@@ -212,8 +212,8 @@ var DataViewCollectionView = new Class({
 
         var signals = DV_PAGE.navLookup[selectedView]['signals'];
 
-        var hiddenFields = this.loadSignalDataInPage(params, 
-                                                                    parentDataviewIndex, 
+        var hiddenFields = this.loadSignalDataInPage(params,
+                                                                    parentDataviewIndex,
                                                                     signals);
 
         for(var i=0; i < hiddenFields.length; i++){
@@ -234,7 +234,7 @@ var DataViewCollectionView = new Class({
         if((signals != undefined) && (params != undefined)){
             for(var sig in signals){
                 if(signals.hasOwnProperty(sig)){
-                
+
                     //TODO: This commented out block might be a possible approach to
                     //maintaining state when a panel is detached.  Going to first see if
                     //this is required functionality, if not it should be removed.
@@ -269,7 +269,7 @@ var DataViewCollectionView = new Class({
                     var dateMatch = match[0].replace(/&$/, '').split('&');
                     if((dateMatch != null) && (dateMatch.length >= 2)){
                         for(var i=0; i < dateMatch.length; i++){
-                            
+
                             var dateNameValue = dateMatch[i].split('=');
                             var signalHiddenField = document.createElement("input");
                             signalHiddenField.setAttribute('type', 'hidden');
@@ -323,7 +323,7 @@ var DataViewCollectionModel = new Class({
         this.parent(options);
 
         this.newViewUrl = '/' + DV_PAGE.project;
-        this.urlResubmissionUrl = '/api/resubmit/';
+        this.urlResubmissionUrl = '/api/resubmit/project/';
 
         //An object acting like an associative array that holds
         //all views
@@ -335,7 +335,7 @@ var DataViewCollectionModel = new Class({
         /******
          * This data structure maintains the parent/child relationships
          * for all views a user has created
-         * 
+         *
          *     { dviewIndex: { parent:parent dviewIndex,
          *                            children: { child dviewIndex1 .. dviewIndexn } }
          *
@@ -356,7 +356,7 @@ var DataViewCollectionModel = new Class({
             this.dviewRelationships[childIndex] = { 'parent':parentIndex, 'children':{} };
         }else if( (parentIndex === undefined) && (childIndex === 0)){
             //First view
-            this.dviewRelationships[childIndex] = { 'parent':undefined, 'children':{} }; 
+            this.dviewRelationships[childIndex] = { 'parent':undefined, 'children':{} };
         }
     },
     getLength: function(){
@@ -364,7 +364,7 @@ var DataViewCollectionModel = new Class({
     },
     getDataView: function(dviewIndex){
         if( this.dviewCollection[ dviewIndex ] != undefined ){
-          return this.dviewCollection[dviewIndex]; 
+          return this.dviewCollection[dviewIndex];
         }
     },
     getAllDataViewIndexes: function(){
@@ -396,7 +396,7 @@ var DataViewCollectionModel = new Class({
     },
     getAllDataViewNames: function(){
 
-        var mapReturn = _.map( _.keys( DV_PAGE.navLookup ), function(key){ 
+        var mapReturn = _.map( _.keys( DV_PAGE.navLookup ), function(key){
             return { name:key, read_name:DV_PAGE.navLookup[key]['read_name'] };
         });
 

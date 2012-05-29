@@ -2,6 +2,9 @@ from tastypie import fields
 from tastypie.bundle import Bundle
 from tastypie.resources import Resource
 
+from ..models import ProjectModel
+
+import json
 
 class ProjectData(object):
     proj_data = "whatever"
@@ -10,7 +13,7 @@ class ProjectData(object):
 
 
 class ProjectResource(Resource):
-    proj_data = fields.CharField(attribute="proj_data")
+    data = fields.CharField(attribute="data")
 
     class Meta:
         resource_name = 'project'
@@ -35,14 +38,14 @@ class ProjectResource(Resource):
     def get_object_list(self, request):
         """Main entry point for get data"""
 
-        results = []
-        result = ProjectData()
-        result.proj_data = {
-            "project": self.project,
-            "method": self.method,
-            }
-        results.append(result)
-        return results
+        proj = ProjectModel(self.project)
+
+        pd = ProjectData()
+        pd.data = json.loads(proj.dataview(request, self.method))["data"]
+
+#        results = json.loads(proj.dataview(request, self.method))
+
+        return [pd]
 
 
     def obj_get_list(self, request=None, **kwargs):
@@ -52,65 +55,9 @@ class ProjectResource(Resource):
         return self.get_object_list(request)
 
 
-    def obj_get(self, request=None, **kwargs):
-        pass
-        # I don't think we do this, because the endpoint will
-        # only support getting all data for the project
+#    def obj_get(self, request=None, **kwargs):
+#        pass
+#        # I don't think we do this, because the endpoint will
+#        # only support getting all data for the project
+#
 
-
-    def dataview(request, project="", method=""):
-        # @@@ TODO This looks like an API
-        # this is getting raw data, so we should use tastypie for this.
-
-        procPath = "graphs.views."
-        ##Full proc name including base path in json file##
-        fullProcPath = "{0}{1}".format(procPath, method)
-
-        if settings.DEBUG:
-            ###
-            #Write IP address and datetime to log
-            ###
-            print "Client IP:{0}".format(request.META['REMOTE_ADDR'])
-            print "Request Datetime:{0}".format(str(datetime.datetime.now()))
-
-        json = ""
-        if method in DATAVIEW_ADAPTERS:
-            dm = DatazillaModel(project, 'graphs.json')
-            if 'adapter' in DATAVIEW_ADAPTERS[method]:
-                json = DATAVIEW_ADAPTERS[method]['adapter'](project,
-                                                            method,
-                                                            request,
-                                                            dm)
-            else:
-                if 'fields' in DATAVIEW_ADAPTERS[method]:
-                    fields = []
-                    for f in DATAVIEW_ADAPTERS[method]['fields']:
-                        if f in request.POST:
-                            fields.append( dm.dhub.escapeString( request.POST[f] ) )
-                        elif f in request.GET:
-                            fields.append( dm.dhub.escapeString( request.GET[f] ) )
-
-                    if len(fields) == len(DATAVIEW_ADAPTERS[method]['fields']):
-                        json = dm.dhub.execute(
-                            proc=fullProcPath,
-                            debug_show=settings.DEBUG,
-                            placeholders=fields,
-                            return_type='table_json')
-
-                    else:
-                        json = ('{ "error":"{0} fields required, {1} provided" }'.format(
-                            str(len(DATAVIEW_ADAPTERS[method]['fields'])),
-                            str(len(fields))))
-
-                else:
-
-                    json = dm.dhub.execute(proc=fullProcPath,
-                                           debug_show=settings.DEBUG,
-                                           return_type='table_json')
-
-            dm.disconnect()
-
-        else:
-            json = '{ "error":"Data view name %s not recognized" }' % method
-
-        return HttpResponse(json, mimetype=APP_JS)
