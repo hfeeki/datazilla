@@ -1,14 +1,15 @@
+import datetime
 import json
 import urllib
 import zlib
 import memcache
 
-from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render_to_response
 from django.conf import settings
 
-from datazilla.model.DatazillaModel import DatazillaModel
 from models import SIGNALS
+from datazilla.model import DatazillaModel
+from datazilla.model import utils
 
 APP_JS = 'application/json'
 
@@ -19,7 +20,7 @@ def graphs(request, project=""):
     #Load any signals provided in the page
     ####
     signals = []
-    timeRanges = DatazillaModel.getTimeRanges()
+    timeRanges = utils.get_time_ranges()
 
     for s in SIGNALS:
         if s in request.POST:
@@ -47,7 +48,7 @@ def graphs(request, project=""):
         #reference data has not been cached:
         #serialize, compress, and cache
         ####
-        dm = DatazillaModel(project, 'graphs.json')
+        dm = DatazillaModel(project)
         refData = dm.getTestReferenceData()
         dm.disconnect()
 
@@ -78,5 +79,3 @@ def getHelp(request):
 
     data = {}
     return render_to_response('help/dataview.generic.help.html', data)
-
-

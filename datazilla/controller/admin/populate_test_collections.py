@@ -1,15 +1,14 @@
-import os
 import sys
 
 from datazilla.vendor import add_vendor_lib
 add_vendor_lib()
 
 from optparse import OptionParser
-from datazilla.model.DatazillaModel import DatazillaModel
+from datazilla.model import DatazillaModel
 
 def loadTestCollection(project):
 
-    gm = DatazillaModel(project, 'graphs.json')
+    gm = DatazillaModel(project)
 
     products = gm.getProducts('id')
 
@@ -23,8 +22,8 @@ def loadTestCollection(project):
                                  products[ productName ]['version'],
                                  products[ productName ]['branch'])
 
-            id = gm.setData('set_test_collection', [ name, "", name ])
-            gm.setData('set_test_collection_map', [ id, products[ productName ]['id'] ])
+            id = gm.set_data('set_test_collection', [ name, "", name ])
+            gm.set_data('set_test_collection_map', [ id, products[ productName ]['id'] ])
 
     gm.disconnect()
 

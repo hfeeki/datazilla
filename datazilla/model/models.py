@@ -4,97 +4,50 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 #####
 import datetime
+import os
 import time
 
-from datazilla.model.Model import Model
+from datasource.bases.BaseHub import BaseHub
+from datasource.hubs.MySQL import MySQL
+from django.conf import settings
+from django.db import models
+import memcache
 
-class DatazillaModel(Model):
 
-    @staticmethod
-    def getIdString(idList):
-        ####
-        # idList = [1,2,3,4,5]
-        #
-        # Cast each element in the list to a string.
-        #
-        # Join the strings on a ',' and return '1,2,3,4,5'
-        #####
-        return ','.join( map( lambda i: str(i), idList ) )
+from . import utils
 
-    @staticmethod
-    def getIdList(idString):
-        ####
-        # idString = '1,2,3,4,5'
-        #
-        # Split the string on a ',' to get a list.
-        #
-        # Cast each element in the list to an int.
-        #
-        # If an element generates a ValueError on the cast return an empty
-        # list.
-        ####
-        idList = []
 
-        try:
-            idList = map( lambda s: int(s), idString.split(',') )
-        except ValueError:
-            ##Cast to int failed, must not be a number##
-            pass
+SOURCES_CACHE_KEY = "datazilla-datasources"
 
-        return idList
+SQL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "sql")
 
-    @staticmethod
-    def getCacheKey(project, itemId, itemData):
-        return str(project) + '_' + str(itemId) + '_' + str(itemData)
 
-    @staticmethod
-    def getTimeRanges():
 
-        #############
-        #  time.time() is used to generate the unix timestamp
-        #  associated with the json structure pushed to the database
-        #  by a talos bot.  So all time ranges need to be computed in
-        #  seconds since the epoch
-        ############
+class DatazillaModel(object):
+    """Public interface to all data access for a project."""
+    def __init__(self, project):
+        self.sources = {
+            "perftest": self.datasource_class(project, "perftest"),
+            }
+        self.DEBUG = settings.DEBUG
 
-        now = int( time.time() )
 
-        timeRanges = { 'days_7': { 'start':now, 'stop':now - 604800 },
-                       'days_30': { 'start':now, 'stop':now - 2592000 },
-                       'days_60': { 'start':now, 'stop':now - 5184000 },
-                       'days_90': { 'start':now, 'stop':now - 7776000 },
-                       #'days_360': { 'start':now, 'stop':now - 31557600 }
-                       }
-        ###
-        #Add a readable version of start/stop for each time range
-        ###
-        for timeKey in timeRanges:
+    @property
+    def datasource_class(self):
+        if settings.USE_APP_ENGINE:
+            from .appengine.model import CloudSQLDataSource
+            return CloudSQLDataSource
+        return SQLDataSource
 
-            start = timeRanges[ timeKey ][ 'start' ]
-            stop = timeRanges[ timeKey ][ 'stop' ]
 
-            timeFormat = '%Y-%m-%d'
-            startStr = str( datetime.datetime.fromtimestamp( start ) \
-                       .strftime( timeFormat ) )
-            stopStr = str( datetime.datetime.fromtimestamp( stop ) \
-                       .strftime( timeFormat) )
+    @property
+    def dhub(self):
+        return self.sources["perftest"].dhub
 
-            timeRanges[timeKey][ 'rstart' ] = startStr
-            timeRanges[timeKey][ 'rstop' ] = stopStr
-
-        return timeRanges
-
-    @staticmethod
-    def getDatabaseSources():
-        return Model.databaseSources
-
-    def __init__(self, project, sqlFileName):
-
-        Model.__init__(self, project, sqlFileName)
 
     def getProductTestOsMap(self):
 
-        proc = 'graphs.selects.get_product_test_os_map'
+        proc = 'perftest.selects.get_product_test_os_map'
 
         productTuple = self.dhub.execute(proc=proc,
                                          debug_show=self.DEBUG,
@@ -102,11 +55,12 @@ class DatazillaModel(Model):
 
         return productTuple
 
+
     def getOperatingSystems(self, keyColumn=None):
 
         operatingSystems = dict()
 
-        proc = 'graphs.selects.get_operating_systems'
+        proc = 'perftest.selects.get_operating_systems'
 
         if keyColumn:
             operatingSystems = self.dhub.execute(proc=proc,
@@ -123,9 +77,10 @@ class DatazillaModel(Model):
 
         return operatingSystems
 
+
     def getTests(self, keyColumn='name'):
 
-        proc = 'graphs.selects.get_tests'
+        proc = 'perftest.selects.get_tests'
 
         testDict = self.dhub.execute(proc=proc,
                                      debug_show=self.DEBUG,
@@ -134,11 +89,12 @@ class DatazillaModel(Model):
 
         return testDict
 
+
     def getProducts(self, keyColumn=None):
 
         products = dict()
 
-        proc = 'graphs.selects.get_product_data'
+        proc = 'perftest.selects.get_product_data'
 
         if keyColumn:
             products = self.dhub.execute(proc=proc,
@@ -155,9 +111,10 @@ class DatazillaModel(Model):
 
         return products
 
+
     def getMachines(self):
 
-        proc = 'graphs.selects.get_machines'
+        proc = 'perftest.selects.get_machines'
 
         machinesDict = self.dhub.execute(proc=proc,
                                          debug_show=self.DEBUG,
@@ -166,9 +123,10 @@ class DatazillaModel(Model):
 
         return machinesDict
 
+
     def getOptions(self):
 
-        proc = 'graphs.selects.get_options'
+        proc = 'perftest.selects.get_options'
 
         optionsDict = self.dhub.execute(proc=proc,
                                         debug_show=self.DEBUG,
@@ -177,9 +135,10 @@ class DatazillaModel(Model):
 
         return optionsDict
 
+
     def getPages(self):
 
-        proc = 'graphs.selects.get_pages'
+        proc = 'perftest.selects.get_pages'
 
         pagesDict = self.dhub.execute(proc=proc,
                                       debug_show=self.DEBUG,
@@ -188,9 +147,10 @@ class DatazillaModel(Model):
 
         return pagesDict
 
+
     def getAuxData(self):
 
-        proc = 'graphs.selects.get_aux_data'
+        proc = 'perftest.selects.get_aux_data'
 
         auxDataDict = self.dhub.execute(proc=proc,
                                         debug_show=self.DEBUG,
@@ -198,6 +158,7 @@ class DatazillaModel(Model):
                                         return_type='dict')
 
         return auxDataDict
+
 
     def getReferenceData(self):
 
@@ -211,9 +172,10 @@ class DatazillaModel(Model):
 
         return referenceData
 
+
     def getTestCollections(self):
 
-        proc = 'graphs.selects.get_test_collections'
+        proc = 'perftest.selects.get_test_collections'
 
         testCollectionTuple = self.dhub.execute(proc=proc,
                                                 debug_show=self.DEBUG,
@@ -241,6 +203,7 @@ class DatazillaModel(Model):
 
         return testCollection
 
+
     def getTestReferenceData(self):
 
         referenceData = dict(operating_systems=self.getOperatingSystems('id'),
@@ -251,6 +214,7 @@ class DatazillaModel(Model):
 
         return referenceData
 
+
     def getTestRunSummary(self,
                           start,
                           end,
@@ -259,17 +223,16 @@ class DatazillaModel(Model):
                           testIds):
 
         colData = {
-           'b.product_id':DatazillaModel.getIdString(productIds),
+           'b.product_id': utils.get_id_string(productIds),
 
-           'b.operating_system_id':DatazillaModel. \
-                                   getIdString(operatingSystemIds),
+           'b.operating_system_id': utils.get_id_string(operatingSystemIds),
 
-           'tr.test_id':DatazillaModel.getIdString(testIds)
+           'tr.test_id': utils.get_id_string(testIds)
         }
 
-        rep = self.buildReplacement(colData)
+        rep = utils.build_replacement(colData)
 
-        proc = 'graphs.selects.get_test_run_summary'
+        proc = 'perftest.selects.get_test_run_summary'
 
         testRunSummaryTable = self.dhub.execute(proc=proc,
                                                 debug_show=self.DEBUG,
@@ -279,9 +242,10 @@ class DatazillaModel(Model):
 
         return testRunSummaryTable
 
+
     def getAllTestRuns(self):
 
-        proc = 'graphs.selects.get_all_test_runs'
+        proc = 'perftest.selects.get_all_test_runs'
 
         testRunSummaryTable = self.dhub.execute(proc=proc,
                                                 debug_show=self.DEBUG,
@@ -289,9 +253,10 @@ class DatazillaModel(Model):
 
         return testRunSummaryTable
 
+
     def getTestRunValues(self, testRunId):
 
-        proc = 'graphs.selects.get_test_run_values'
+        proc = 'perftest.selects.get_test_run_values'
 
         testRunValueTable = self.dhub.execute(proc=proc,
                                               debug_show=self.DEBUG,
@@ -299,10 +264,11 @@ class DatazillaModel(Model):
                                               return_type='table')
 
         return testRunValueTable
+
 
     def getTestRunValueSummary(self, testRunId):
 
-        proc = 'graphs.selects.get_test_run_value_summary'
+        proc = 'perftest.selects.get_test_run_value_summary'
 
         testRunValueTable = self.dhub.execute(proc=proc,
                                               debug_show=self.DEBUG,
@@ -311,9 +277,10 @@ class DatazillaModel(Model):
 
         return testRunValueTable
 
+
     def getPageValues(self, testRunId, pageId):
 
-        proc = 'graphs.selects.get_page_values'
+        proc = 'perftest.selects.get_page_values'
 
         pageValuesTable = self.dhub.execute(proc=proc,
                                             debug_show=self.DEBUG,
@@ -323,9 +290,10 @@ class DatazillaModel(Model):
 
         return pageValuesTable
 
+
     def getSummaryCache(self, itemId, itemData):
 
-        proc = 'graphs.selects.get_summary_cache'
+        proc = 'perftest.selects.get_summary_cache'
 
         cachedData = self.dhub.execute(proc=proc,
                                        debug_show=self.DEBUG,
@@ -334,9 +302,10 @@ class DatazillaModel(Model):
 
         return cachedData
 
+
     def getAllSummaryCache(self):
 
-        proc = 'graphs.selects.get_all_summary_cache_data'
+        proc = 'perftest.selects.get_all_summary_cache_data'
 
         dataIter = self.dhub.execute(proc=proc,
                                      debug_show=self.DEBUG,
@@ -347,9 +316,10 @@ class DatazillaModel(Model):
 
         return dataIter
 
+
     def getAllTestData(self, start):
 
-        proc = 'graphs.selects.get_all_test_data'
+        proc = 'perftest.selects.get_all_test_data'
 
         dataIter = self.dhub.execute(proc=proc,
                                      debug_show=self.DEBUG,
@@ -361,16 +331,20 @@ class DatazillaModel(Model):
 
         return dataIter
 
+
     def setSummaryCache(self, itemId, itemData, value):
 
         nowDatetime = str( datetime.datetime.now() )
 
-        self.setData('set_summary_cache', [ itemId,
+        self.sources["perftest"].set_data('set_summary_cache', [ itemId,
                                             itemData,
                                             value,
                                             nowDatetime,
                                             value,
                                             nowDatetime ])
+
+    def disconnect(self):
+        return self.sources["perftest"].dhub
 
     def loadTestData(self, data, jsonData):
 
@@ -392,9 +366,12 @@ class DatazillaModel(Model):
         self._setTestAuxData(data, refData)
         self._setTestData(jsonData, refData)
 
+
     def _setTestData(self, jsonData, refData):
 
-        self.setData('set_test_data', [refData['test_run_id'], jsonData])
+        self.sources["perftest"].set_data('set_test_data',
+                            [refData['test_run_id'], jsonData])
+
 
     def _setTestAuxData(self, data, refData):
 
@@ -408,16 +385,18 @@ class DatazillaModel(Model):
 
                     stringData = ""
                     numericData = 0
-                    if self.isNumber(auxValues[index]):
+                    if utils.is_number(auxValues[index]):
                         numericData = auxValues[index]
                     else:
                         stringData = auxValues[index]
 
-                    self.setData('set_aux_values', [refData['test_run_id'],
-                                                    index + 1,
-                                                    auxDataId,
-                                                    numericData,
-                                                    stringData])
+                    self.sources["perftest"].set_data('set_aux_values',
+                                                 [refData['test_run_id'],
+                                                  index + 1,
+                                                  auxDataId,
+                                                  numericData,
+                                                  stringData])
+
 
     def _setTestValues(self, data, refData):
 
@@ -430,15 +409,17 @@ class DatazillaModel(Model):
             for index in range(0, len(values)):
 
                 value = values[index]
-                self.setData('set_test_values', [refData['test_run_id'],
-                                                  index + 1,
-                                                  pageId,
-                                                  ######
-                                                  #TODO: Need to get the value
-                                                  #id into the json
-                                                  ######
-                                                  1,
-                                                  value])
+                self.sources["perftest"].set_data('set_test_values',
+                                             [refData['test_run_id'],
+                                              index + 1,
+                                              pageId,
+                                              ######
+                                              #TODO: Need to get the value
+                                              #id into the json
+                                              ######
+                                              1,
+                                              value])
+
 
     def _getAuxId(self, auxData, refData):
 
@@ -447,13 +428,15 @@ class DatazillaModel(Model):
             if auxData in refData['aux_data']:
                 auxId = refData['aux_data'][auxData]['id']
             else:
-                auxId = self.setDataAndGetId('set_aux_data',
-                                             [refData['test_id'], auxData])
+                auxId = self.sources["perftest"].set_data_and_get_id('set_aux_data',
+                                             [refData['test_id'],
+                                             auxData])
 
         except KeyError:
             raise
         else:
             return auxId
+
 
     def _getPageId(self, page, refData):
 
@@ -462,7 +445,7 @@ class DatazillaModel(Model):
             if page in refData['pages']:
                 pageId = refData['pages'][page]['id']
             else:
-                pageId = self.setDataAndGetId('set_pages_data',
+                pageId = self.sources["perftest"].set_data_and_get_id('set_pages_data',
                                               [refData['test_id'], page])
 
         except KeyError:
@@ -470,19 +453,21 @@ class DatazillaModel(Model):
         else:
             return pageId
 
+
     def _setOptionData(self, data, refData):
 
         if 'options' in data['testrun']:
             for option in data['testrun']['options']:
                 id = refData['option_id_map'][option]['id']
                 value = data['testrun']['options'][option]
-                self.setData('set_test_option_values', [refData['test_run_id'],
+                self.sources["perftest"].set_data('set_test_option_values', [refData['test_run_id'],
                                                         id,
                                                         value])
 
+
     def _setBuildData(self, data, refData):
 
-        buildId = self.setDataAndGetId('set_build_data',
+        buildId = self.sources["perftest"].set_data_and_get_id('set_build_data',
                                        [ refData['operating_system_id'],
                                          refData['product_id'],
                                          refData['machine_id'],
@@ -499,15 +484,17 @@ class DatazillaModel(Model):
 
         return buildId
 
+
     def _setTestRunData(self, data, refData):
 
-        testRunId = self.setDataAndGetId('set_test_run_data',
+        testRunId = self.sources["perftest"].set_data_and_get_id('set_test_run_data',
                                          [ refData['test_id'],
                                          refData['build_id'],
                                          data['test_build']['revision'],
                                          data['testrun']['date'] ])
 
         return testRunId
+
 
     def _getMachineId(self, data, refData):
 
@@ -517,7 +504,7 @@ class DatazillaModel(Model):
             if name in refData['machines']:
                 machineId = refData['machines'][ name ]['id']
             else:
-                machineId = self.setDataAndGetId('set_machine_data',
+                machineId = self.sources["perftest"].set_data_and_get_id('set_machine_data',
                                                  [ name, int(time.time()) ])
 
         except KeyError:
@@ -525,6 +512,7 @@ class DatazillaModel(Model):
 
         else:
             return machineId
+
 
     def _getTestId(self, data, refData):
         testId = 1
@@ -536,12 +524,13 @@ class DatazillaModel(Model):
                 if 'suite_version' in data['testrun']:
                     version = int(data['testrun']['suite_version'])
 
-                testId = self.setData('set_test',
+                testId = self.sources["perftest"].set_data('set_test',
                                       [ data['testrun']['suite'], version ])
         except KeyError:
             raise
         else:
             return testId
+
 
     def _getOsId(self, data, refData):
 
@@ -553,7 +542,7 @@ class DatazillaModel(Model):
             if osKey in refData['operating_systems']:
                 osId = refData['operating_systems'][osKey]
             else:
-                osId = self.setDataAndGetId('set_operating_system',
+                osId = self.sources["perftest"].set_data_and_get_id('set_operating_system',
                                             [ osName, osVersion ])
 
         except KeyError:
@@ -562,6 +551,7 @@ class DatazillaModel(Model):
         else:
             return osId
 
+
     def _getOptionIds(self, data, refData):
         optionIds = dict()
         try:
@@ -569,12 +559,13 @@ class DatazillaModel(Model):
                 if option in refData['options']:
                     optionIds[ option ] = refData['options'][option]
                 else:
-                    testId = self.setDataAndGetId('set_option_data', [ option ])
+                    testId = self.sources["perftest"].set_data_and_get_id('set_option_data', [ option ])
                     optionIds[ option ] = testId
         except KeyError:
             raise
         else:
             return optionIds
+
 
     def _getProductId(self, data, refData):
 
@@ -590,13 +581,14 @@ class DatazillaModel(Model):
             if productKey in refData['products']:
                 productId = refData['products'][productKey]
             else:
-                productId = self.setDataAndGetId('set_product_data',
+                productId = self.sources["perftest"].set_data_and_get_id('set_product_data',
                                                  [ product, branch, version ])
 
         except KeyError:
             raise
         else:
             return productId
+
 
     def _getUniqueKeyDict(self, dataTuple, keyStrings):
 
@@ -607,3 +599,173 @@ class DatazillaModel(Model):
                 uniqueKey += str(data[key])
             dataDict[ uniqueKey ] = data['id']
         return dataDict
+
+
+
+
+class DataSourceManager(models.Manager):
+    def cached(self):
+        """Return all datasources, caching the results."""
+        mc = memcache.Client([settings.DATAZILLA_MEMCACHED])
+        sources = mc.get(SOURCES_CACHE_KEY)
+        if sources is None:
+            sources = list(self.filter(active_status=True))
+            mc.set(SOURCES_CACHE_KEY, sources)
+        return sources
+
+
+
+class DataSource(models.Model):
+    """
+    A source of data for a single project.
+
+    """
+    project = models.CharField(max_length=25)
+    dataset = models.CharField(max_length=25)
+    contenttype = models.CharField(max_length=25)
+    host = models.CharField(max_length=128)
+    name = models.CharField(max_length=128)
+    type = models.CharField(max_length=25)
+    active_status = models.BooleanField(default=True, db_index=True)
+    creation_date = models.DateTimeField()
+
+    objects = DataSourceManager()
+
+
+    class Meta:
+        db_table = "datasource"
+        unique_together = [["project", "dataset", "contenttype"]]
+
+
+    @property
+    def key(self):
+        """Unique key for a data source is the project, contenttype, dataset."""
+        return "{0} - {1} - {2}".format(
+            self.project, self.contenttype, self.dataset)
+
+
+    def __unicode__(self):
+        """Unicode representation is the project's unique key."""
+        return unicode(self.key)
+
+
+    def dhub(self, procs_file_name):
+        """
+        Return a configured ``DataHub`` using the given SQL procs file.
+
+        """
+        data_source = {
+            self.key: {
+                "hub": "MySQL",
+                "master_host": {
+                    "host": self.host,
+                    "user": settings.DATAZILLA_DATABASE_USER,
+                    "passwd": settings.DATAZILLA_DATABASE_PASSWORD,
+                    },
+                "default_db": self.name,
+                "procs": [os.path.join(SQL_PATH, procs_file_name)],
+                }
+            }
+        BaseHub.addDataSource(data_source)
+        # @@@ the datahub class should depend on self.type
+        return MySQL(self.key)
+
+
+
+class MultipleDatasetsError(ValueError):
+    pass
+
+
+
+class DatasetNotFoundError(ValueError):
+    pass
+
+
+
+class SQLDataSource(object):
+    """
+    Encapsulates SQL queries against a specific data source.
+
+    """
+    def __init__(self, project, contenttype, procs_file_name=None):
+        """
+        Initialize for given project, contenttype, procs file.
+
+        If not supplied, procs file name defaults to the name of the
+        contenttype with ``.json`` appended.
+
+        """
+        self.DEBUG = settings.DEBUG
+        self.project = project
+        self.contenttype = contenttype
+        self.procs_file_name = procs_file_name or "%s.json" % contenttype
+        self._dhub = None
+
+
+    @property
+    def dhub(self):
+        """
+        The configured datahub for this data source.
+
+        Raises ``MultipleDatasetsError`` if multiple active datasets are found
+        for the given project and contenttype.
+
+        Raises ``DatasetNotFoundError`` if no active dataset is found for the
+        given project and contenttype.
+
+        """
+        if self._dhub is None:
+            self._dhub = self._get_dhub()
+        return self._dhub
+
+
+    def _get_dhub(self):
+        candidate_sources = []
+        for source in DataSource.objects.cached():
+            if (source.project == self.project and
+                    source.contenttype == self.contenttype):
+                candidate_sources.append(source)
+
+        # @@@ should we just pick the latest instead? would require switching
+        # dataset to an integer field
+        if len(candidate_sources) > 1:
+            raise MultipleDatasetsError(
+                "Project %r, contenttype %r has multiple active datasets: "
+                % (
+                    self.project,
+                    self.contenttype,
+                    ", ".join([s.dataset for s in candidate_sources])
+                    )
+                )
+        elif not candidate_sources:
+            raise DatasetNotFoundError(
+                "No active dataset found for project %r, contenttype %r."
+                % (self.project, self.contenttype)
+                )
+
+        return candidate_sources[0].dhub(self.procs_file_name)
+
+
+    def set_data(self, statement, placeholders):
+
+        self.dhub.execute(
+            proc='perftest.inserts.' + statement,
+            debug_show=self.DEBUG,
+            placeholders=placeholders,
+            )
+
+
+    def set_data_and_get_id(self, statement, placeholders):
+
+        self.set_data(statement, placeholders)
+
+        id_iter = self.dhub.execute(
+            proc='perftest.selects.get_last_insert_id',
+            debug_show=self.DEBUG,
+            return_type='iter',
+            )
+
+        return id_iter.getColumnData('id')
+
+    def disconnect(self):
+        self.dhub.disconnect()
