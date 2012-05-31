@@ -2,8 +2,11 @@ from django.conf import settings
 from django.db import models
 from django.http import HttpResponse
 
+import memcache
 import datetime
 import json
+import urllib
+import zlib
 
 from datazilla.model.DatazillaModel import DatazillaModel
 

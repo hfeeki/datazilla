@@ -109,11 +109,11 @@ var DataViewAdapter = new Class({
     },
     processControlPanel: function(controlPanelSel, data, dviewIndex){
         /*************************
-         * Translate the values of the control panel fields 
+         * Translate the values of the control panel fields
          * or signal data into a URL parameter string.
          *
          * Parameters:
-         *     
+         *
          *     controlPanelSel - Control panel id selector
          *     data - signal data object
          *         data.signal - name of signal
@@ -123,11 +123,11 @@ var DataViewAdapter = new Class({
 
         if(!_.isEmpty(data)){
             if(!_.isEmpty(data.date_range)){
-                params = 'start_date=' + data.date_range.start_date + 
-                            '&end_date=' + data.date_range.end_date + '&' + 
-                            data.signal + '=' + data.data; 
+                params = 'start_date=' + data.date_range.start_date +
+                            '&end_date=' + data.date_range.end_date + '&' +
+                            data.signal + '=' + data.data;
             }else{
-                params = data.signal + '=' + data.data; 
+                params = data.signal + '=' + data.data;
             }
         }else{
 
@@ -288,9 +288,9 @@ var DataViewAdapter = new Class({
                 if(dataObject.data[i][s] != undefined){
 
                     if(typeof( dataObject.data[i][s] ) === 'number'){
-                        dataObject.data[i][s] = '<div style="display:inline;"><a class="' + eclass + 
-                                                         '" href="#' + s + '">' + 
-                                                         DV_PAGE.escapeHtmlEntities(String(dataObject.data[i][s])) + 
+                        dataObject.data[i][s] = '<div style="display:inline;"><a class="' + eclass +
+                                                         '" href="#' + s + '">' +
+                                                         DV_PAGE.escapeHtmlEntities(String(dataObject.data[i][s])) +
                                                          '</a></div>';
                     }else{
                         var cmenu = "dv_table_contextmenu";
@@ -299,10 +299,10 @@ var DataViewAdapter = new Class({
                         }else if(s === 'fatal_message'){
                             cmenu = "dv_fm_contextmenu";
                         }
-                        dataObject.data[i][s] = '<div contextmenu="' + cmenu + 
-                                                     '" style="display:inline;"><a class="' + eclass + 
-                                                     '" href="#' + s + 
-                                                     '">' + DV_PAGE.escapeHtmlEntities(dataObject.data[i][s]) + 
+                        dataObject.data[i][s] = '<div contextmenu="' + cmenu +
+                                                     '" style="display:inline;"><a class="' + eclass +
+                                                     '" href="#' + s +
+                                                     '">' + DV_PAGE.escapeHtmlEntities(dataObject.data[i][s]) +
                                                      '</a></div>';
                     }
                 }
@@ -343,19 +343,19 @@ var TestSelectorAdapter = new Class({
 
     },
     setControlPanelFields: function(controlPanelDropdownEl, data, dviewIndex){
-  
+
         var dva = new DataViewAdapter();
 
         dva.setControlPanelFields(controlPanelDropdownEl, data, dviewIndex);
 
         //Set required ids
-        this.testCollectionToggleId = this.view.getIdSelector(this.testCollectionToggleSel, 
+        this.testCollectionToggleId = this.view.getIdSelector(this.testCollectionToggleSel,
                                                                                 dviewIndex);
 
-        this.advancedOptionsToggleId = this.view.getIdSelector(this.advancedOptionsToggleSel, 
+        this.advancedOptionsToggleId = this.view.getIdSelector(this.advancedOptionsToggleSel,
                                                                                  dviewIndex);
 
-        this.dateRangeOptionsToggleId = this.view.getIdSelector(this.dateRangeOptionsToggleSel, 
+        this.dateRangeOptionsToggleId = this.view.getIdSelector(this.dateRangeOptionsToggleSel,
                                                                                   dviewIndex);
 
         this.testCollectionContainerId = this.view.getIdSelector(this.testCollectionContainerSel,
@@ -373,19 +373,19 @@ var TestSelectorAdapter = new Class({
         $(this.dateRangeOptionsToggleId).unbind('click');
 
         //Bind onclick
-        $(this.testCollectionToggleId).bind('click', _.bind(this._togglePanel, 
-                                                                             this, 
-                                                                             this.testCollectionToggleId, 
+        $(this.testCollectionToggleId).bind('click', _.bind(this._togglePanel,
+                                                                             this,
+                                                                             this.testCollectionToggleId,
                                                                              this.testCollectionContainerId));
 
-        $(this.advancedOptionsToggleId).bind('click', _.bind(this._togglePanel, 
-                                                                              this, 
-                                                                              this.advancedOptionsToggleId, 
+        $(this.advancedOptionsToggleId).bind('click', _.bind(this._togglePanel,
+                                                                              this,
+                                                                              this.advancedOptionsToggleId,
                                                                               this.advancedOptionContainerId));
 
-        $(this.dateRangeOptionsToggleId).bind('click', _.bind(this._togglePanel, 
-                                                                              this, 
-                                                                              this.dateRangeOptionsToggleId, 
+        $(this.dateRangeOptionsToggleId).bind('click', _.bind(this._togglePanel,
+                                                                              this,
+                                                                              this.dateRangeOptionsToggleId,
                                                                               this.dateRangeOptionContainerId));
 
         this._loadTestCollectionSelect(dviewIndex);
@@ -403,7 +403,7 @@ var TestSelectorAdapter = new Class({
 
         //Get test collection selections
         var params = "";
-        var testCollectionSelect = this.view.getIdSelector(this.addCollectionsSel, 
+        var testCollectionSelect = this.view.getIdSelector(this.addCollectionsSel,
                                                                             dviewIndex);
 
         var collectionIds = [];
@@ -413,8 +413,8 @@ var TestSelectorAdapter = new Class({
             return data.data;
         }
 
-        //productIds, testIds, platformIds can be 
-        //defined by either the control panel or the 
+        //productIds, testIds, platformIds can be
+        //defined by either the control panel or the
         //visualization.  The ids set by the visualization
         //are found in visData and are integrated here
         //with the control panel values... This is getting
@@ -426,10 +426,10 @@ var TestSelectorAdapter = new Class({
         var testRunIds = [];
         var pageIds = [];
 
-        this._loadVisData(visData, 
-                                productIds, 
-                                testIds, 
-                                platformIds, 
+        this._loadVisData(visData,
+                                productIds,
+                                testIds,
+                                platformIds,
                                 testRunIds,
                                 pageIds);
 
@@ -445,7 +445,7 @@ var TestSelectorAdapter = new Class({
         }
 
         //Get branch selections
-        var productSelect = this.view.getIdSelector(this.addBranchesSel, 
+        var productSelect = this.view.getIdSelector(this.addBranchesSel,
                                                                   dviewIndex);
 
         var productIdString = this._getSelectedOptions(productSelect, productIds).join(',');
@@ -454,7 +454,7 @@ var TestSelectorAdapter = new Class({
         }
 
         //Get test selections
-        var testsSelect = this.view.getIdSelector(this.addTestsSel, 
+        var testsSelect = this.view.getIdSelector(this.addTestsSel,
                                                                  dviewIndex);
         var testIdString = this._getSelectedOptions(testsSelect, testIds).join(',');
         if(testIdString){
@@ -462,7 +462,7 @@ var TestSelectorAdapter = new Class({
         }
 
         //Get platforms selections
-        var platformsSelect = this.view.getIdSelector(this.addPlatformsSel, 
+        var platformsSelect = this.view.getIdSelector(this.addPlatformsSel,
                                                                      dviewIndex);
         var platformIdString = this._getSelectedOptions(platformsSelect, platformIds).join(',');
         if(platformIdString){
@@ -515,7 +515,7 @@ var TestSelectorAdapter = new Class({
                 if(timeKeyFields.length == 2){
                     name = timeKeyFields[1] +
                              ' Days, ' +
-                             DV_PAGE.refData['time_ranges'][timeKey]['rstart'] + 
+                             DV_PAGE.refData['time_ranges'][timeKey]['rstart'] +
                              ' to ' +
                              DV_PAGE.refData['time_ranges'][timeKey]['rstop'];
 
@@ -589,7 +589,7 @@ var TestSelectorAdapter = new Class({
     },
     _loadTestCollectionSelect: function(dviewIndex){
 
-        var selectTarget = this.view.getIdSelector(this.addCollectionsSel, 
+        var selectTarget = this.view.getIdSelector(this.addCollectionsSel,
                                                                  dviewIndex);
         $(selectTarget).empty();
 
@@ -616,7 +616,7 @@ var TestSelectorAdapter = new Class({
         return { values:values, lookup:idLookup };
     },
     _loadBranchesSelect: function(dviewIndex){
-        var selectTarget = this.view.getIdSelector(this.addBranchesSel, 
+        var selectTarget = this.view.getIdSelector(this.addBranchesSel,
                                                                  dviewIndex);
         $(selectTarget).empty();
         for(var id in DV_PAGE.refData.products){
@@ -628,12 +628,12 @@ var TestSelectorAdapter = new Class({
                               DV_PAGE.refData.products[id].version;
 
                 this._loadSelectMenu(selectTarget,
-                                            name, 
+                                            name,
                                             id);
             }
         }
 
-        $(selectTarget).bind('click', _.bind(function(ev){ 
+        $(selectTarget).bind('click', _.bind(function(ev){
             var options = $(ev.currentTarget).find('option:selected');
             var productIds = {};
             for(var i=0; i<options.length; i++){
@@ -643,7 +643,7 @@ var TestSelectorAdapter = new Class({
             this._loadTestSelect(dviewIndex, productIds);
 
             //Clear out the platforms when the branch changes
-            var platformTarget = this.view.getIdSelector(this.addPlatformsSel, 
+            var platformTarget = this.view.getIdSelector(this.addPlatformsSel,
                                                                         dviewIndex);
             $(platformTarget).empty();
 
@@ -651,7 +651,7 @@ var TestSelectorAdapter = new Class({
 
     },
     _loadOsSelect: function(dviewIndex, testIds){
-        var selectTarget = this.view.getIdSelector(this.addPlatformsSel, 
+        var selectTarget = this.view.getIdSelector(this.addPlatformsSel,
                                                                  dviewIndex);
         $(selectTarget).empty();
         var osIds = {};
@@ -670,14 +670,14 @@ var TestSelectorAdapter = new Class({
 
                 if(osIds[ id ]){
                     this._loadSelectMenu(selectTarget,
-                                                name, 
+                                                name,
                                                 id);
                 }
             }
         }
     },
     _loadTestSelect: function(dviewIndex, productIds){
-        var selectTarget = this.view.getIdSelector(this.addTestsSel, 
+        var selectTarget = this.view.getIdSelector(this.addTestsSel,
                                                                  dviewIndex);
         $(selectTarget).empty();
         var testIds = {};
@@ -697,7 +697,7 @@ var TestSelectorAdapter = new Class({
                 }
             }
         }
-        $(selectTarget).bind('click', _.bind(function(ev){ 
+        $(selectTarget).bind('click', _.bind(function(ev){
 
             var options = $(ev.currentTarget).find('option:selected');
             var testIds = {};
@@ -713,8 +713,8 @@ var TestSelectorAdapter = new Class({
 
         var options = $(selectTarget).find('option');
         for(var i=0; i<options.length; i++){
-            var selected = $(options[i]).attr('selected'); 
-            if(selected){    
+            var selected = $(options[i]).attr('selected');
+            if(selected){
                 ids.push($(options[i]).attr('value'));
             }
         }

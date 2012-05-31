@@ -7,13 +7,14 @@ from ..models import ProjectModel
 import json
 
 class ProjectData(object):
-    proj_data = "whatever"
+    data = "whatever"
     uuid = 1
 
 
 
 class ProjectResource(Resource):
-    data = fields.CharField(attribute="data")
+    data = fields.ListField(attribute="data")
+    columns = fields.ListField(attribute="columns")
 
     class Meta:
         resource_name = 'project'
@@ -41,8 +42,10 @@ class ProjectResource(Resource):
         proj = ProjectModel(self.project)
 
         pd = ProjectData()
-        pd.data = json.loads(proj.dataview(request, self.method))["data"]
-
+        data = json.loads(proj.dataview(request, self.method))["data"]
+        columns = json.loads(proj.dataview(request, self.method))["columns"]
+        pd.data = data
+        pd.columns = columns
 #        results = json.loads(proj.dataview(request, self.method))
 
         return [pd]

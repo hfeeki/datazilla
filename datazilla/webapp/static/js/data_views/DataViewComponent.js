@@ -1633,7 +1633,7 @@ var DataViewModel = new Class({
         this.dviewHash = {};
         this.setDataViewHash(this.options.dviewName);
         this.apiLocation = "/" + DV_PAGE.project + "/api/";
-        this.dateRangeLocation = "/" + DV_PAGE.project + "/api/get_date_range/project";
+        this.dateRangeLocation = "/" + DV_PAGE.project + "/api/get_date_range/project?format=json";
 
         //This is set from any incoming view data
         //to whatever the final range was.  If the
@@ -1650,7 +1650,7 @@ var DataViewModel = new Class({
     },
     getDataViewData: function(dviewName, context, fnSuccess, params, fnError){
 
-        var url = this.apiLocation + dviewName + "/project/";
+        var url = this.apiLocation + dviewName + "/project/?format=json";
 
         //Check for default data
         var serviceUrl = this.getDataViewAttribute('service_url');
@@ -1699,7 +1699,7 @@ var DataViewModel = new Class({
         //data returned to the success function ref.  This is why
         //jQuery.parseJSON is being used instead.  Not sure why this
         //occurs.
-        var dataObject = jQuery.parseJSON( data );
+        var dataObject = jQuery.parseJSON( data )["objects"][0];
 
         //Set the date range
         this.start_date = dataObject.start_date;
