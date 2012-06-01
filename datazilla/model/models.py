@@ -366,7 +366,6 @@ class DatazillaModel(object):
         self._setTestAuxData(data, refData)
         self._setTestData(jsonData, refData)
 
-
     def _setTestData(self, jsonData, refData):
 
         self.sources["perftest"].set_data('set_test_data',
@@ -460,9 +459,10 @@ class DatazillaModel(object):
             for option in data['testrun']['options']:
                 id = refData['option_id_map'][option]['id']
                 value = data['testrun']['options'][option]
-                self.sources["perftest"].set_data('set_test_option_values', [refData['test_run_id'],
-                                                        id,
-                                                        value])
+                self.sources["perftest"].set_data('set_test_option_values',
+                                                  [refData['test_run_id'],
+                                                   id,
+                                                   value])
 
 
     def _setBuildData(self, data, refData):
@@ -555,12 +555,13 @@ class DatazillaModel(object):
     def _getOptionIds(self, data, refData):
         optionIds = dict()
         try:
-            for option in data['testrun']['options']:
-                if option in refData['options']:
-                    optionIds[ option ] = refData['options'][option]
-                else:
-                    testId = self.sources["perftest"].set_data_and_get_id('set_option_data', [ option ])
-                    optionIds[ option ] = testId
+            if 'options' in data['testrun']:
+                for option in data['testrun']['options']:
+                    if option in refData['options']:
+                        optionIds[ option ] = refData['options'][option]
+                    else:
+                        testId = self.sources["perftest"].set_data_and_get_id('set_option_data', [ option ])
+                        optionIds[ option ] = testId
         except KeyError:
             raise
         else:

@@ -28,6 +28,27 @@ class ProjectModel(object):
         self.project=project
 
 
+    def setTestData(request):
+        # @@@ TODO This looks like an API
+        # this is not the submission of a form, so we should use tastypie for this.
+
+        jsonData = '{"error":"No POST data found"}'
+
+        if 'data' in request.POST:
+
+            jsonData = request.POST['data']
+            unquotedJsonData = urllib.unquote(jsonData)
+            data = json.loads( unquotedJsonData )
+
+            dm = DatazillaModel(self.project)
+            dm.loadTestData( data, unquotedJsonData )
+            dm.disconnect()
+
+            jsonData = json.dumps( { 'loaded_test_pages':len(data['results']) } )
+
+        return HttpResponse(jsonData, mimetype=APP_JS)
+
+
     def dataview(self, request, method=""):
         # @@@ TODO This looks like an API
         # this is getting raw data, so we should use tastypie for this.
@@ -199,29 +220,6 @@ def _getTestValueSummary(project, method, request, dm):
 
     return jsonData
 
-
-##################
-# FROM VIEWS.PY
-
-def setTestData(request):
-    # @@@ TODO This looks like an API
-    # this is not the submission of a form, so we should use tastypie for this.
-
-    jsonData = '{"error":"No POST data found"}'
-
-    if 'data' in request.POST:
-
-        jsonData = request.POST['data']
-        unquotedJsonData = urllib.unquote(jsonData)
-        data = json.loads( unquotedJsonData )
-
-        dm = DatazillaModel(project, 'graphs.json')
-        dm.loadTestData( data, unquotedJsonData )
-        dm.disconnect()
-
-        jsonData = json.dumps( { 'loaded_test_pages':len(data['results']) } )
-
-    return HttpResponse(jsonData, mimetype=APP_JS)
 
 
 #####

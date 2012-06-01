@@ -79,3 +79,4 @@ def getHelp(request):
 
     data = {}
     return render_to_response('help/dataview.generic.help.html', data)
+
