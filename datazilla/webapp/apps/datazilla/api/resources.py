@@ -2,7 +2,7 @@ from tastypie import fields
 from tastypie.bundle import Bundle
 from tastypie.resources import Resource
 
-from ..models import ProjectModel
+from ..views import dataview
 
 import json
 
@@ -18,7 +18,7 @@ class ProjectResource(Resource):
 
     class Meta:
         resource_name = 'project'
-#        object_class=ProjectModel
+
 
     def get_resource_uri(self, bundle_or_obj):
         kwargs = {
@@ -39,14 +39,11 @@ class ProjectResource(Resource):
     def get_object_list(self, request):
         """Main entry point for get data"""
 
-        proj = ProjectModel(self.project)
-
         pd = ProjectData()
-        data = json.loads(proj.dataview(request, self.method))["data"]
-        columns = json.loads(proj.dataview(request, self.method))["columns"]
-        pd.data = data
-        pd.columns = columns
-#        results = json.loads(proj.dataview(request, self.method))
+        dv_res = dataview(request, project=self.project, method=self.method)
+        dv_obj = json.loads(dv_res)
+        pd.data = dv_obj["data"]
+        pd.columns = dv_obj["columns"]
 
         return [pd]
 
@@ -58,9 +55,4 @@ class ProjectResource(Resource):
         return self.get_object_list(request)
 
 
-#    def obj_get(self, request=None, **kwargs):
-#        pass
-#        # I don't think we do this, because the endpoint will
-#        # only support getting all data for the project
-#
 
