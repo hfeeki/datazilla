@@ -95,7 +95,8 @@ def setTestData(request, project=""):
 
         jsonData = json.dumps( { 'loaded_test_pages':len(data['results']) } )
 
-    return HttpResponse(jsonData, mimetype=APP_JS)
+    # does the response to the user need all the data that was submitted?
+    return jsonData
 
 
 def dataview(request, project="", method=""):

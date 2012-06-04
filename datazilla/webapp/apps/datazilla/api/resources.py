@@ -2,14 +2,19 @@ from tastypie import fields
 from tastypie.bundle import Bundle
 from tastypie.resources import Resource
 
-from ..views import dataview
+from ..views import dataview, setTestData
 
 import json
 
 class ProjectData(object):
-    data = "whatever"
-    uuid = 1
 
+    def __init__(self, data, columns):
+        self.data = data
+        self.columns = columns
+
+        # required for tastypie to work, but not very meaningful since the data
+        # object is nested and opaque to the ProjectResource
+        self.uuid = 1
 
 
 class ProjectResource(Resource):
@@ -36,23 +41,29 @@ class ProjectResource(Resource):
         return self._build_reverse_url("api_dispatch_detail", kwargs=kwargs)
 
 
-    def get_object_list(self, request):
-        """Main entry point for get data"""
+    def get_object_list(self, request, project, method):
+        """Main entry point for getting data for the stored project and method"""
 
-        pd = ProjectData()
-        dv_res = dataview(request, project=self.project, method=self.method)
+        dv_res = dataview(request, project=project, method=method)
         dv_obj = json.loads(dv_res)
-        pd.data = dv_obj["data"]
-        pd.columns = dv_obj["columns"]
 
+        pd = ProjectData(data=dv_obj["data"], columns=dv_obj["columns"])
         return [pd]
 
 
     def obj_get_list(self, request=None, **kwargs):
-        self.project = kwargs["project"]
-        self.method = kwargs["method"]
+        """Persist the project and method for a data request"""
+        project = kwargs["project"]
+        method = kwargs["method"]
 
-        return self.get_object_list(request)
+        return self.get_object_list(request, project, method)
 
 
+    def obj_create(self, bundle, request=None, **kwargs):
+        """Post a set of data for a project"""
+        project = kwargs["project"]
+        setTestData(request, project=project)
 
+        #TODO @@@ in the bundle, we should respond with what setTestData sends
+        # us or with something equivalent.
+        return bundle
