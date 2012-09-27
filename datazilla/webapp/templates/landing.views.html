@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Perf-o-Matic</title>
+    <link rel="stylesheet" href="/static/css/Aristo/jquery-ui-1.8.7.custom.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/css/fg.menu.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/css/ColVisAlt.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/css/dataviews.css" type="text/css"/>
+    <link rel="stylesheet" href="/static/css/landing.css" type="text/css"/>
+
+</head>
+
+<body>
+
+<div id="container">
+    <div class="ui-widget ui-widget-header ui-corner-top dv-toolbar-base dv-toppanel">
+        <div class="pm-title">
+            <a href=""><span id="logo"></span></a>
+        </div>
+    </div>
+    <div id="content-container1">
+        <div id="content-container2">
+            <div id="section-navigation">
+                <div class="fg-toolbar ui-toolbar ui-widget-header ui-corner-top dv-viewtext ui-helper-clearfix">
+                    <span class="fg-toolbar css-left " style="margin-left:5px;">Projects</span>
+                </div>
+                <div class="dg-toolpanel ui-widget-content ui-corner-top ui-helper-clearfix">
+                    <span class="css-left " style="margin-left:5px;">
+                        <ul>
+                            {% for project in project_list %}
+                            <li><a href="#">{{project}}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </span>
+                </div>
+            </div>
+            <div id="content" class="ui-widget">
+                <div class="fg-toolbar ui-toolbar ui-widget ui-widget-header ui-corner-top dv-viewtext ui-helper-clearfix">
+
+                    <a id="view_graphs" class="css-right dv-viewbutton fg-button ui-state-default fg-button-icon-left ui-widget ui-corner-all" href="#view_graphs" title="View Graphs">
+                        <span class="css-right">View Graphs</span>
+                    </a>
+
+                    <span style="margin-right:5px;" class="fg-toolbar css-left">Summary Data for: <span id="summary_project_name">Talos</span></span>
+
+                    <span class="fg-toolbar css-left " style="margin-left:5px;"><span id="dv_view_title_c"></span></span>
+
+                </div>
+                <div class="ui-widget ui-widget-content ui-corner-all">
+                    <p>
+                        {{test_runs}}
+                    </p>
+                    <p>
+                        {{errors}}
+                    </p>
+                </div>
+            </div>
+            <div id="aside">
+                <h3>
+                    Aside heading
+                </h3>
+                <p>
+                    Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan.
+                </p>
+            </div>
+            <div id="footer">
+                Copyright © Site name, 20XX
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END VISIBLE BODY -->
+
+
+<script type="text/javascript" src="/static/js/plugins/jquery-1.6.3.min.js"></script>
+<script type="text/javascript" src="/static/js/plugins/jquery-ui-1.8.13.custom.min.js"></script>
+<script type="text/javascript" src="/static/js/plugins/jquery.url.js"></script>
+
+<script type="text/javascript" src="/static/js/plugins/flot-0.7/jquery.flot.min.js"></script>
+<script type="text/javascript" src="/static/js/plugins/flot-0.7/jquery.flot.selection.min.js"></script>
+<script type="text/javascript" src="/static/js/plugins/flot-0.7/jquery.flot.crosshair.min.js"></script>
+<script type="text/javascript" src="/static/js/plugins/flot-0.7/jquery.flot.fillbetween.min.js"></script>
+<script type="text/javascript" src="/static/js/plugins/flot-0.7/jquery.flot.orderBars.js"></script>
+
+<script type="text/javascript" src="/static/js/plugins/underscore-min.js"></script>
+<script type="text/javascript" src="/static/js/plugins/d3.v2.min.js"></script>
+<script type="text/javascript" src="/static/js/plugins/box.js"></script>
+
+<!-- Gives core mootools class functionality to jQuery -->
+<script type="text/javascript" src="/static/js/plugins/mootools-core-1.4.0.js"></script>
+<script type="text/javascript" src="/static/js/plugins/moo4q/Source/Class.Mutators.jQuery.js"></script>
+
+<script type="text/javascript" src="/static/js/plugins/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="/static/js/plugins/datatables/ColVis.js"></script>
+
+
+<!-- This version of fg.menu.js has been heavily modified to work in bughunter -->
+<script type="text/javascript" src="/static/js/plugins/fg.menu.js"></script>
+<script type="text/javascript" src="/static/js/plugins/json2.js"></script>
+
+<!-- data view classes-->
+<script type="text/javascript" src="/static/js/data_views/Bases.js"></script>
+<script type="text/javascript" src="/static/js/data_views/ConnectionsComponent.js"></script>
+<script type="text/javascript" src="/static/js/data_views/DataAdapterCollection.js"></script>
+<script type="text/javascript" src="/static/js/data_views/VisualizationCollection.js"></script>
+<script type="text/javascript" src="/static/js/data_views/DataViewComponent.js"></script>
+<script type="text/javascript" src="/static/js/data_views/DataViewCollection.js"></script>
+<script type="text/javascript" src="/static/js/data_views/DataViewPage.js"></script>
+
+</body>
+</html>

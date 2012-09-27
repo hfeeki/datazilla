@@ -12,9 +12,13 @@ from django.conf import settings
 from django.core.cache import cache
 from django.http import HttpResponse
 
+from datazilla.model.sql.models import DataSource
 from datazilla.model import PerformanceTestModel
 from datazilla.model import utils
 from datazilla.model import DatasetNotFoundError
+from datazilla.model.refdata import PerformanceTestRefDataModel
+from datazilla.model.utils import get_day_range
+from datazilla.controller.admin.refdata import perftest_refdata, objectstore_refdata
 
 APP_JS = 'application/json'
 
@@ -354,6 +358,33 @@ def _get_test_value_summary(project, method, request, dm):
     json_data = json.dumps( data )
 
     return json_data
+
+
+def landing(request):
+
+    daterange = get_day_range(10)
+    runs = _get_runs_by_branch("talos", daterange["start"], daterange["stop"])
+    errors = _get_test_data_errors("talos", daterange["start"], daterange["stop"])
+
+    project_list = DataSource.objects.filter(contenttype="perftest").values_list("project", flat=True).order_by("project")
+    ["b2g", "stoneridge", "talos"]
+    data = {"project_list": project_list,
+            "test_runs": runs,
+            "errors": errors,
+            }
+
+
+    return render_to_response('landing.views.html', data)
+
+
+def _get_runs_by_branch(project, startdate, enddate):
+    test_runs = perftest_refdata.get_runs_by_branch(project, startdate, enddate)
+    return test_runs
+
+
+def _get_test_data_errors(project, startdate, enddate):
+    test_runs = objectstore_refdata.get_error_count(project, startdate, enddate)
+    return test_runs
 
 
 #####
