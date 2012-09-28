@@ -362,14 +362,14 @@ def _get_test_value_summary(project, method, request, dm):
 
 def landing(request):
 
-    daterange = get_day_range(10)
-    runs = _get_runs_by_branch("talos", daterange["start"], daterange["stop"])
+    daterange = get_day_range(30)
+#    runs = _get_runs_by_branch("talos", daterange["start"], daterange["stop"])
     errors = _get_test_data_errors("talos", daterange["start"], daterange["stop"])
 
     project_list = DataSource.objects.filter(contenttype="perftest").values_list("project", flat=True).order_by("project")
     ["b2g", "stoneridge", "talos"]
     data = {"project_list": project_list,
-            "test_runs": runs,
+#            "test_runs": runs,
             "errors": errors,
             }
 

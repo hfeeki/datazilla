@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="/static/css/ColVisAlt.css" type="text/css"/>
     <link rel="stylesheet" href="/static/css/dataviews.css" type="text/css"/>
     <link rel="stylesheet" href="/static/css/landing.css" type="text/css"/>
-
+    <link rel="stylesheet" href="/static/css/datatables.css" type="text/css"/>
 </head>
 
 <body>
@@ -29,7 +29,7 @@
                     <span class="css-left " style="margin-left:5px;">
                         <ul>
                             {% for project in project_list %}
-                            <li><a href="#">{{project}}</a></li>
+                            <li><a onclick='displayTable("{{ project }}")' href="#">{{project}}</a></li>
                             {% endfor %}
                         </ul>
                     </span>
@@ -42,27 +42,30 @@
                         <span class="css-right">View Graphs</span>
                     </a>
 
-                    <span style="margin-right:5px;" class="fg-toolbar css-left">Summary Data for: <span id="summary_project_name">Talos</span></span>
+                    <span style="margin-right:5px;" class="fg-toolbar css-left">Summary Data for: <span id="summary_project_name">Pick one</span></span>
 
                     <span class="fg-toolbar css-left " style="margin-left:5px;"><span id="dv_view_title_c"></span></span>
 
                 </div>
                 <div class="ui-widget ui-widget-content ui-corner-all">
-                    <p>
-                        {{test_runs}}
-                    </p>
+                    <div id="results"><div class="data"></div></div>
                     <p>
                         {{errors}}
                     </p>
                 </div>
             </div>
             <div id="aside">
-                <h3>
-                    Aside heading
-                </h3>
-                <p>
-                    Duis autem vel eum iriure dolor in hendrerit in vulputate velit esse molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero eros et accumsan.
-                </p>
+                <div class="fg-toolbar ui-toolbar ui-widget-header ui-corner-top dv-viewtext ui-helper-clearfix">
+                    <span class="fg-toolbar css-left " style="margin-left:5px;">Database sizes (fake)</span>
+                </div>
+                <div class="dg-toolpanel ui-widget-content ui-corner-top ui-helper-clearfix">
+                    <span class="css-left " style="margin-left:5px;">
+                        <ul>
+                            <li>Perftest: 13 MB</li>
+                            <li>Objectstore: 4 MB</li>
+                        </ul>
+                    </span>
+                </div>
             </div>
             <div id="footer">
                 Copyright © Site name, 20XX
@@ -72,6 +75,14 @@
 </div>
 <!-- END VISIBLE BODY -->
 
+<div id="templates" class="ui-widget">
+    <div class="branch_results">
+        <div class="ui-widget-header"><h2><span>Branch: </span><span id="branch_name"></span></h2></div>
+        <table class="ui-widget-content"></table>
+    </div>
+</div>
+
+<script type="text/javascript" src=/static/js/data_views/Landing.js></script>
 
 <script type="text/javascript" src="/static/js/plugins/jquery-1.6.3.min.js"></script>
 <script type="text/javascript" src="/static/js/plugins/jquery-ui-1.8.13.custom.min.js"></script>
